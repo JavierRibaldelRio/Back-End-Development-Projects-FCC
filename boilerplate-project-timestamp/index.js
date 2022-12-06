@@ -30,8 +30,18 @@ app.get("/api/hello", function (req, res) {
 //Creación de la nueva ruta
 app.get("/api/:date", (req, res) => {
 
+  const fecha = new Date(req.params.date);
+
+  var respuesta = {};
 
 
+  respuesta.utc = fecha.toUTCString();
+  respuesta.unix = fecha.getTime();
+  console.log('fecha :>> ', fecha);
+
+
+
+  res.json(respuesta)
 })
 
 
