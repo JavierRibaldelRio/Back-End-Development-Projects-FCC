@@ -28,26 +28,43 @@ app.get("/api/hello", function (req, res) {
 });
 
 //Creación de la nueva ruta
-app.get("/api/:date", (req, res) => {
+app.get("/api/:date?", (req, res) => {
 
+  //Coge la fecha
+  var date = req.params.date;
 
-  if (req.params.date !== undefined) {
-    const fecha = new Date(req.params.date);
-  }
-  else {
+  //Crea  una nueva fecha con valores del momento de crearla
+  let fecha = new Date();
 
-    fecha = new Date()
-  }
-
+  //Almacena la respuesta
   var respuesta = {};
 
 
-  respuesta.utc = fecha.toUTCString();
-  respuesta.unix = fecha.getTime();
-  console.log('fecha :>> ', fecha);
+  //Mira si es undefined la fecha
+  if (date !== undefined) {
 
+    //Si la fecha es un número la transforma a número
+    if (!isNaN(Number(date))) {
 
+      date = Number(date);
+    }
 
+    //Crea la nueva fecha
+    fecha = new Date(date);
+  }
+
+  // Si la fecha está mal transmite error
+  if (isNaN(fecha)) {
+    respuesta.error = "Invalid Date";
+  }
+
+  //Sino transmite que está bien
+  else {
+    respuesta.utc = fecha.toUTCString();
+    respuesta.unix = fecha.getTime();
+  }
+
+  //Devuelve la respuesta
   res.json(respuesta)
 })
 
