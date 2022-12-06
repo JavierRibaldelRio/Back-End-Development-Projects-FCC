@@ -15,8 +15,5 @@
     "mongoose": "^6.8.0",
     "shortid": "^2.2.16"
   },
-  "license": "MIT",
-  "devDependencies": {
-    "nodemon": "^2.0.4"
-  }
+  "license": "MIT"
 }
