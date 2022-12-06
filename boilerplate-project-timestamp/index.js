@@ -30,7 +30,14 @@ app.get("/api/hello", function (req, res) {
 //Creación de la nueva ruta
 app.get("/api/:date", (req, res) => {
 
-  const fecha = new Date(req.params.date);
+
+  if (req.params.date !== undefined) {
+    const fecha = new Date(req.params.date);
+  }
+  else {
+
+    fecha = new Date()
+  }
 
   var respuesta = {};
 
