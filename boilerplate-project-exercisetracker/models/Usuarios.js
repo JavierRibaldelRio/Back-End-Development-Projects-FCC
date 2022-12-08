@@ -8,9 +8,6 @@ mongoose.set('strictQuery', true);
 var usuario = new mongoose.Schema({
 
     username: String,
-    description: String,
-    duration: Number,
-    date: String,
     count: { type: Number, default: 0 },
     log: [{
         description: String,

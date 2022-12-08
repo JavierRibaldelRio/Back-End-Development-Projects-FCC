@@ -6,9 +6,6 @@ require('dotenv').config()
 // Importa el usuario
 const Usuario = require('./models/Usuarios');
 
-//Importa el objeto LOG
-
-var Log = require('./Log');
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -69,8 +66,19 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   //Extrae formulario descripcion duracion fecha
   var { description, duration, date } = req.body;
 
+  //Transforma la duration de String a Number
+
+  duration = Number(duration);
+
   //Pasa el string a fecha
-  date = new Date(date);
+  if (date === '' || date === undefined) {
+
+    date = new Date();
+
+  }
+  else {
+    date = new Date(date);
+  }
 
   //Convierte la fecha en el string de forma deseade
   date = date.toDateString();
@@ -86,11 +94,8 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
     else {
 
-      //Crea un nuevo log
-      var logNuevo = new Log(description, duration, date);
-
-      //Añade al array el nuevo log
-      data.log.push(logNuevo);
+      //Añade al array el nuevog log
+      data.log.push({ description: description, duration: duration, date: date });
 
       //Aumenta en uno el contador de ejercicios
       data.count++;
@@ -108,22 +113,67 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 });
 
 app.get('/api/users/:_id/logs', (req, res) => {
-
+  // Obtiene la id
   const id = req.params._id;
 
-  Usuario.findById(id, (err, data) => {
+  //Comprueba si hay query
+  if (Object.keys(req.query).length === 0) {
 
-    if (err) {
-      console.log('err :>> ', err);
-      res.send(err);
-    }
+    //Busca el usuario
+    Usuario.findById(id, (err, data) => {
 
-    else {
-      res.send(data);
-    }
-  })
-})
+      //Si hay un error lo muestra
+      if (err) {
+        console.log('err :>> ', err);
+        res.send(err);
+      }
+
+      //Sino manda los datos de respuesta
+      else {
+        res.send(data);
+      }
+    });
+  }
+
+  //Si hay query
+  else {
+
+
+    //Extrae los datos dela query
+    var { from, to, limit } = req.query;
+
+    //Busca usuarios por la id
+    Usuario.findById(id, (err, data) => {
+
+      //Crea una copia del log
+      var log = [...data.log]
+
+      //Si tiene inicio y final
+      if (from != undefined && to != undefined) {
+
+        //Transforma los strings en data
+        from = new Date(from);
+        to = new Date(to);
+
+        //Elimina los que no estan en la franja de tiempo
+        log = log.filter((x) => from <= new Date(x.date) && to >= new Date(x.date)
+        );
+      }
+
+      //Comprueba si hay limite
+      if (limit !== undefined) {
+        log = [...log].slice(0, Number(limit));
+      }
+
+      // Inserta en data el nuevo log
+      data.log = log;
+
+      res.json(data);
+
+    });
+  }
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
-  console.log('Your app is listening on port ' + listener.address().port)
-})
+  console.log('Your app is listening on port ' + listener.address().port);
+});
